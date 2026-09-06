@@ -1,0 +1,8 @@
+{
+  "name": "nihongo-quest",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force build,build/src | Out-Null; Copy-Item index.html build/index.html -Force; Copy-Item src/*.js,src/*.css build/src/ -Force\""
+  }
+}

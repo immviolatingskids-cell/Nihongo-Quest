@@ -65,11 +65,11 @@ export const grammar = [
 ];
 
 export const scenarios = [
- {id:'intro',area:'sakura',place:'Introductions',icon:'👋',npc:'Yuki',prompt:'はじめまして。おなまえは？',translation:'Nice to meet you. What is your name?',answers:['わたしはアレックスです','アレックスです'],model:'わたしはアレックスです。'},
+ {id:'intro',area:'sakura',place:'Introductions',icon:'👋',npc:'Yuki',prompt:'はじめまして。おなまえは？',translation:'Nice to meet you. What is your name?',answers:['わたしはアレックスです','アレックスです'],model:'わたしはアレックスです。',scenes:[{prompt:'はじめまして。おなまえは？',translation:'Nice to meet you. What is your name?',answers:['わたしはアレックスです','アレックスです'],model:'わたしはアレックスです。'},{prompt:'にほんごがすきですか。',translation:'Do you like Japanese?',answers:['はい、すきです','はい'],model:'はい、にほんごがすきです。'},{prompt:'またあした！',translation:'See you tomorrow!',answers:['またあした','さようなら'],model:'またあした！'}]},
  {id:'school',area:'sakura',place:'School',icon:'🏫',npc:'Tanaka-sensei',prompt:'にほんごがすきですか。',translation:'Do you like Japanese?',answers:['はい、すきです','はい'],model:'はい、にほんごがすきです。'},
- {id:'restaurant',area:'market',place:'Restaurant',icon:'🍜',npc:'Mika',prompt:'ごちゅうもんは？',translation:'What would you like to order?',answers:['すしをください','すし'],model:'すしをください。'},
+ {id:'restaurant',area:'market',place:'Restaurant',icon:'🍜',npc:'Mika',prompt:'ごちゅうもんは？',translation:'What would you like to order?',answers:['すしをください','すし'],model:'すしをください。',scenes:[{prompt:'いらっしゃいませ。',translation:'Welcome.',answers:['こんにちは','おはよう'],model:'こんにちは。'},{prompt:'ごちゅうもんは？',translation:'What would you like to order?',answers:['すしをください','すし'],model:'すしをください。'},{prompt:'おちゃもいかがですか。',translation:'Would you also like tea?',answers:['はい、おねがいします','はい'],model:'はい、おねがいします。'}]},
  {id:'shop',area:'market',place:'Shop',icon:'🛍️',npc:'Haru',prompt:'いくつですか。',translation:'How many?',answers:['ふたつください','ふたつ'],model:'ふたつください。'},
- {id:'station',area:'station',place:'Station',icon:'🚆',npc:'Sora',prompt:'どこにいきますか。',translation:'Where are you going?',answers:['がっこうにいきます','がっこう'],model:'がっこうにいきます。'},
+ {id:'station',area:'station',place:'Station',icon:'🚆',npc:'Sora',prompt:'どこにいきますか。',translation:'Where are you going?',answers:['がっこうにいきます','がっこう'],model:'がっこうにいきます。',scenes:[{prompt:'どこにいきますか。',translation:'Where are you going?',answers:['がっこうにいきます','がっこう'],model:'がっこうにいきます。'},{prompt:'きっぷはありますか。',translation:'Do you have a ticket?',answers:['はい、あります','はい'],model:'はい、あります。'},{prompt:'でんしゃはみぎです。',translation:'The train is to the right.',answers:['ありがとう','ありがとうございます'],model:'ありがとうございます。'}]},
  {id:'directions',area:'station',place:'Directions',icon:'🧭',npc:'Ren',prompt:'えきはどこですか。',translation:'Where is the station?',answers:['みぎです','ひだりです'],model:'みぎです。'},
  {id:'routine',area:'school',place:'Everyday chat',icon:'☀️',npc:'Aoi',prompt:'あさ、なにをしますか。',translation:'What do you do in the morning?',answers:['ごはんをたべます','べんきょうします'],model:'ごはんをたべます。'}
 ];
@@ -79,3 +79,29 @@ export const companions=[
  {id:'tanuki',name:'Ponta',icon:'🦝',effect:'+2 coins after every correct answer.',unlock:100},
  {id:'neko',name:'Mochi',icon:'🐈',effect:'Review sessions contain one extra due word.',unlock:220}
 ];
+
+export const curriculum = [
+ {id:'path.kana.vowels',type:'kana',title:'First sounds',subtitle:'Read the あ-row',area:'sakura',requires:[],content:['vowels'],outcome:'Recognise the five Japanese vowels'},
+ {id:'path.words.greetings',type:'vocabulary',title:'Open the gate',subtitle:'First greetings',area:'sakura',requires:['path.kana.vowels'],content:['ohayo','konnichiwa','arigato','sayonara'],outcome:'Greet someone politely'},
+ {id:'path.grammar.identity',type:'grammar',title:'Say who you are',subtitle:'は + です',area:'sakura',requires:['path.words.greetings'],content:['wa','desu'],outcome:'Introduce yourself'},
+ {id:'path.story.intro',type:'story',title:'A new friend',subtitle:'Talk with Yuki',area:'sakura',requires:['path.grammar.identity'],content:['intro'],outcome:'Complete an introduction'},
+ {id:'path.kana.k',type:'kana',title:'Clear sounds',subtitle:'Read the か-row',area:'sakura',requires:['path.story.intro'],content:['k'],outcome:'Recognise five new kana'},
+ {id:'path.words.people',type:'vocabulary',title:'People around you',subtitle:'Names and relationships',area:'sakura',requires:['path.kana.k'],content:['watashi','sensei','tomodachi','namae'],outcome:'Talk about people'},
+ {id:'path.words.food',type:'vocabulary',title:'Lantern lunch',subtitle:'Food and drink',area:'market',requires:['path.words.people'],content:['mizu','ocha','gohan','sushi'],outcome:'Recognise a simple menu'},
+ {id:'path.grammar.objects',type:'grammar',title:'Order politely',subtitle:'の + を',area:'market',requires:['path.words.food'],content:['no','o'],outcome:'Connect nouns and mark objects'},
+ {id:'path.story.restaurant',type:'story',title:'Table for one',subtitle:'Order at Mika’s restaurant',area:'market',requires:['path.grammar.objects'],content:['restaurant'],outcome:'Order a meal'},
+ {id:'path.words.travel',type:'vocabulary',title:'Catch the train',subtitle:'Station vocabulary',area:'station',requires:['path.story.restaurant'],content:['eki','densha','kippu','doko'],outcome:'Ask about station travel'},
+ {id:'path.grammar.destination',type:'grammar',title:'Where and when',subtitle:'に + ます',area:'station',requires:['path.words.travel'],content:['ni','masu'],outcome:'Describe a polite action and destination'},
+ {id:'path.story.station',type:'story',title:'The right platform',subtitle:'Navigate the station',area:'station',requires:['path.grammar.destination'],content:['station'],outcome:'Complete a travel exchange'}
+];
+
+export const contentManifest={schemaVersion:1,collections:{vocabulary:'vocabulary',grammar:'grammar',kana:'kanaFamilies',scenarios:'scenarios',curriculum:'curriculum'}};
+export function validateContent(){
+ const issues=[],all=new Set(),wordIds=new Set(vocabulary.map(x=>x.id)),grammarIds=new Set(grammar.map(x=>x.id)),scenarioIds=new Set(scenarios.map(x=>x.id)),familyIds=new Set(kanaFamilies.map(x=>x.id));
+ const unique=(kind,list)=>list.forEach((x,i)=>{if(!x.id)issues.push({level:'error',where:`${kind}[${i}]`,message:'Missing stable id'});else if(all.has(`${kind}:${x.id}`))issues.push({level:'error',where:x.id,message:'Duplicate id'});else all.add(`${kind}:${x.id}`)});
+ unique('word',vocabulary);unique('grammar',grammar);unique('scenario',scenarios);unique('family',kanaFamilies);unique('node',curriculum);
+ vocabulary.forEach(w=>['kana','romaji','meaning','category','area','example','exampleEn'].forEach(k=>{if(!w[k])issues.push({level:'error',where:w.id,message:`Missing ${k}`})}));
+ curriculum.forEach(n=>{const valid=n.type==='vocabulary'?wordIds:n.type==='grammar'?grammarIds:n.type==='story'?scenarioIds:familyIds;n.content.forEach(id=>{if(!valid.has(id))issues.push({level:'error',where:n.id,message:`Unknown ${n.type} content: ${id}`})});n.requires.forEach(id=>{if(!curriculum.some(x=>x.id===id))issues.push({level:'error',where:n.id,message:`Unknown prerequisite: ${id}`})})});
+ areas.forEach(a=>a.groups.forEach(g=>g.words.forEach(id=>{if(!wordIds.has(id))issues.push({level:'error',where:g.id,message:`Unknown word: ${id}`})})));
+ return {valid:!issues.some(x=>x.level==='error'),issues,counts:{words:vocabulary.length,grammar:grammar.length,kana:kanaFamilies.reduce((n,f)=>n+f.items.length,0),scenarios:scenarios.length,nodes:curriculum.length}};
+}

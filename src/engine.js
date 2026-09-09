@@ -1,5 +1,6 @@
 import {vocabulary,kanaFamilies,grammar,companions,confusionPairs,curriculum} from './data.js';
 import {getState,update} from './state.js';
+import {emitCompanion,COMPANION_EVENTS} from './companion.js';
 const DAY=86400000;
 export const shuffle=a=>[...a].sort(()=>Math.random()-.5);
 export const SKILLS=['recognition','recall','listening','production'];
@@ -11,12 +12,12 @@ export const dueWords=()=>vocabulary.filter(w=>{const r=getState().reviews[w.id]
 export const weakWords=()=>vocabulary.filter(w=>getState().reviews[w.id]?.wrong).sort((a,b)=>{const x=getState().reviews;return (x[b.id].wrong-x[b.id].correct)-(x[a.id].wrong-x[a.id].correct)});
 export function recordWord(id,correct,mode='recognition'){
  const skill=SKILLS.includes(mode)?mode:(mode==='listening'?'listening':'recognition');
- update(s=>{const r=s.reviews[id]||{correct:0,wrong:0,interval:0,due:0,skills:{recognition:0,recall:0,listening:0,production:0}};r.skills=skillScores(r);r.skills[skill]=Math.max(0,Math.min(100,r.skills[skill]+(correct?18:-11)));if(correct){r.correct++;const floor=Math.min(...Object.values(r.skills));r.interval=floor<30?1:floor<60?3:Math.min(30,Math.max(7,Math.round((r.interval||3)*1.7)));r.due=Date.now()+r.interval*DAY;s.xp+=skill==='production'?18:12;s.coins+=s.companion==='tanuki'?4:2}else{r.wrong++;r.interval=0;r.due=Date.now()+10*60*1000}r.last=Date.now();s.reviews[id]=r;s.answers.push({date:new Date().toISOString(),kind:'word',id,correct,mode:skill});s.quests.review++;if(mastery(r)>=4)s.quests.master=Math.max(s.quests.master,Object.values(s.reviews).filter(x=>mastery(x)>=4).length);touchDay(s)});
- checkAchievements();
+ update(s=>{const r=s.reviews[id]||{correct:0,wrong:0,interval:0,due:0,skills:{recognition:0,recall:0,listening:0,production:0}};r.skills=skillScores(r);r.skills[skill]=Math.max(0,Math.min(100,r.skills[skill]+(correct?18:-11)));if(correct){r.correct++;const floor=Math.min(...Object.values(r.skills));r.interval=floor<30?1:floor<60?3:Math.min(30,Math.max(7,Math.round((r.interval||3)*1.7)));r.due=Date.now()+r.interval*DAY;s.xp+=skill==='production'?18:12}else{r.wrong++;r.interval=0;r.due=Date.now()+10*60*1000}r.last=Date.now();s.reviews[id]=r;s.answers.push({date:new Date().toISOString(),kind:'word',id,correct,mode:skill});s.quests.review++;if(mastery(r)>=4)s.quests.master=Math.max(s.quests.master,Object.values(s.reviews).filter(x=>mastery(x)>=4).length);touchDay(s)});
+ checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_WRONG,{wordId:id});
 }
-export function recordKana(char,correct){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements()}
-export function completeGrammar(id){update(s=>{s.grammar[id]={learned:true,date:Date.now()};s.xp+=20;touchDay(s)});checkAchievements()}
-export function completeConversation(id,perfect){update(s=>{s.conversations[id]={count:(s.conversations[id]?.count||0)+1,perfect:perfect||s.conversations[id]?.perfect};s.quests.conversation++;s.xp+=perfect?30:20;touchDay(s)});checkAchievements()}
+export function recordKana(char,correct){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_WRONG,{kana:char})}
+export function completeGrammar(id){update(s=>{s.grammar[id]={learned:true,date:Date.now()};s.xp+=20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:'That grammar pattern is now in your journal.'})}
+export function completeConversation(id,perfect){update(s=>{s.conversations[id]={count:(s.conversations[id]?.count||0)+1,perfect:perfect||s.conversations[id]?.perfect};s.quests.conversation++;s.xp+=perfect?30:20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:perfect?'A perfect conversation! Sakura is cheering for you.':'Conversation complete. Every reply helps.'})}
 function touchDay(s){const d=new Date().toISOString().slice(0,10);if(!s.studyDays.includes(d))s.studyDays.push(d);s.lastStudy=d}
 export function checkAchievements(){update(s=>{const add=(id)=>{if(!s.achievements.includes(id))s.achievements.push(id)};const kanaCorrect=s.answers.filter(a=>a.kind==='kana'&&a.correct).length;if(kanaCorrect>=50)add('kana50');if(Object.values(s.reviews).filter(r=>mastery(r)>=4).length>=10)add('master10');if(Object.values(s.conversations).some(c=>c.perfect))add('perfectTalk');if(s.studyDays.length>=7)add('week')})}
 export const achievementData=[{id:'kana50',icon:'あ',name:'Kana Spark',detail:'50 kana correct'},{id:'master10',icon:'🏆',name:'Word Keeper',detail:'10 words mastered'},{id:'perfectTalk',icon:'💬',name:'Smooth Talker',detail:'Perfect conversation'},{id:'week',icon:'🔥',name:'Seven Suns',detail:'Study on 7 days'}];
@@ -25,11 +26,11 @@ export function mistakeItems(){const weak=weakWords();const kana=Object.entries(
 export function dailyQuests(){const s=getState();if(s.quests.date!==new Date().toISOString().slice(0,10))update(x=>x.quests={date:new Date().toISOString().slice(0,10),review:0,master:0,conversation:0});return [{label:'Review 10 items',value:s.quests.review,target:10,icon:'↻'},{label:'Master 2 words',value:s.quests.master,target:2,icon:'◆'},{label:'Complete a conversation',value:s.quests.conversation,target:1,icon:'💬'}]}
 export const weeklyQuest=()=>({label:'Study on 5 days',value:getState().studyDays.filter(d=>Date.now()-new Date(d).getTime()<7*DAY).length,target:5});
 export const currentGrammar=()=>grammar.filter(g=>g.level<=Math.max(1,Math.floor(getState().xp/160)+1));
-export const activeCompanion=()=>companions.find(c=>c.id===getState().companion);
+export const activeCompanion=()=>({id:'sakura',name:'Sakura',icon:'🌸',effect:'Reacts to your learning events and keeps you moving.'});
 export function confusionFor(char){return confusionPairs.find(p=>p[0]===char||p[1]===char)}
 export const nodeUnlocked=node=>node.requires.every(id=>getState().curriculum[id]?.complete);
 export const nodeComplete=id=>!!getState().curriculum[id]?.complete;
-export function completeNode(id){update(s=>{s.curriculum[id]={complete:true,date:Date.now()};s.xp+=25;touchDay(s)});checkAchievements()}
+export function completeNode(id){update(s=>{s.curriculum[id]={complete:true,date:Date.now()};s.xp+=25;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.NEW_MILESTONE,{nodeId:id,message:'A new chapter is open. That was a meaningful step.'})}
 export function nextCurriculumNode(){return curriculum.find(n=>nodeUnlocked(n)&&!nodeComplete(n))||curriculum[curriculum.length-1]}
 export function curriculumProgress(){return curriculum.filter(n=>nodeComplete(n)).length/curriculum.length}
 export function stageLabel(stage){return {recognition:'Recognise',recall:'Recall from memory',listening:'Listen',production:'Produce Japanese'}[stage]}

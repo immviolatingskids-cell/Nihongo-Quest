@@ -17,8 +17,10 @@ Companion state and dialogue are centralized in `src/companion.js`, with presenc
 - `src/engine.js` — spaced repetition, mastery, quests and achievements
 - `src/app.js` — screens, sessions and interaction handling
 - `src/companion.js` — Sakura events, states, dialogue and reaction throttling
+- `src/audio.js` — canonical asset/TTS/unavailable audio boundary, preferences and diagnostics
 - `src/styles.css` — responsive visual system
 - `tests/engine.test.js` — learning-engine contracts and integrity tests
+- `tests/audio.test.js` — provider fallback and save compatibility tests
 
 The v0.3 learning engine centralizes question construction, answer evaluation, progress recording, session composition, source metadata, and learning-event emission while preserving specialized grammar and conversation activities. See [docs/milestones/v0.3_LEARNING_ENGINE.md](docs/milestones/v0.3_LEARNING_ENGINE.md) for the architecture and verification record.
 
@@ -41,6 +43,12 @@ The Garden screen shows the current level, transparent growth toward the next le
 Quest Journey is the v0.6 direction layer over the existing curriculum. It groups the current learning nodes into a readable path, distinguishes completed/recommended/available/locked work, explains prerequisites, and puts one deterministic “Recommended next” action on Home. An unfinished lesson can be continued from the same checkpoint, while Focus Quest remains an equally valid short alternative.
 
 Journey recommendations use actual curriculum, review, mistake, weakness, return, and active-session state. They do not add energy, currencies, artificial progress, or a second learning engine. See [docs/milestones/v0.6_QUEST_JOURNEY.md](docs/milestones/v0.6_QUEST_JOURNEY.md) for the node model, recommendation rules, resume integrity, future audio/discovery/artwork hooks, and verification notes.
+
+## Voices of Japan
+
+v0.7 routes kana, vocabulary, example sentences, conversations and eligible listening questions through one canonical audio service. It prefers a checked-in asset when available, falls back to the browser's Japanese `speechSynthesis`, and fails gently when audio is unavailable. Voice, speed and listening autoplay preferences are saved with the learner's progress. Listening answers use the existing review/mastery/streak/Garden systems and reveal the transcript after answering; Focus Quest only benefits from real learning progress.
+
+Run `npm run audio:report` for the current content coverage report. See [docs/milestones/v0.7_VOICES_OF_JAPAN.md](docs/milestones/v0.7_VOICES_OF_JAPAN.md) for the provider contract, accessibility, persistence, diagnostics, tests and extension points.
 
 ## Development
 

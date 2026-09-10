@@ -94,3 +94,7 @@ test('conversation completion awards one scenario result',()=>{
   assert.equal(getState().quests.conversation,1);
   assert.equal(getState().xp,30);
 });
+
+test('save state reserves a compact active-session checkpoint',()=>{
+  assert.equal(getState().activeSession,null);
+});

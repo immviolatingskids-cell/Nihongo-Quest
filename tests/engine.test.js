@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession} from '../src/engine.js';
 import {getState,resetSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -71,4 +71,12 @@ test('canonical session dispatcher and debug view preserve mode context',()=>{
   const debug=describeSession(session);
   assert.equal(debug.length,session.items.length);
   assert.ok(debug.every(item=>item.source==='due review'));
+});
+
+test('conversation evaluation reuses structured results without vocabulary assumptions',()=>{
+  const result=evaluateConversationAnswer({scenarioId:'intro',sceneIndex:1,answers:['はい、すきです','はい'],model:'はい、にほんごがすきです。'},'はい！');
+  assert.equal(result.correct,true);
+  assert.equal(result.contentType,'conversation');
+  assert.equal(result.contentId,'intro');
+  assert.equal(result.stage,'conversation');
 });

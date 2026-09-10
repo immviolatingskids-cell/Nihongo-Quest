@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession,gardenProgress,gardenGrowthScore,syncGardenProgress} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession,gardenProgress,gardenGrowthScore,syncGardenProgress,recommendNext,journeyMap} from '../src/engine.js';
 import {getState,resetSave,importSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -181,4 +181,17 @@ test('Garden level boundaries are deterministic and never decay',()=>{
   assert.equal(before.level,2);
   assert.equal(gardenProgress().level,2);
   assert.equal(gardenProgress().score,8);
+});
+
+test('Journey recommendation and node statuses give deterministic direction',()=>{
+  const fresh=recommendNext();
+  assert.equal(fresh.action,'node');
+  assert.equal(fresh.nodeId,'path.kana.vowels');
+  const map=journeyMap();
+  assert.equal(map[0].nodes[0].status,'recommended');
+  assert.equal(map[0].nodes[1].status,'future');
+  importSave(JSON.stringify({activeSession:{id:'journey-1',kind:'curriculum',title:'First sounds',nodeId:'path.kana.vowels',index:2,answered:false}}));
+  const resumed=recommendNext();
+  assert.equal(resumed.action,'resume');
+  assert.equal(resumed.reason,'You stopped here last time.');
 });

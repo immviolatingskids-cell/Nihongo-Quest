@@ -36,6 +36,12 @@ The Garden turns genuine learning into visible, persistent traces. Mastered voca
 
 The Garden screen shows the current level, transparent growth toward the next level, the next meaningful unlock, recent growth, and category contributions. Unlock notifications go through Sakura's existing event system and are protected against duplicates. See [docs/milestones/v0.5_SAKURA_GARDEN.md](docs/milestones/v0.5_SAKURA_GARDEN.md) for the progression model, persistence strategy, accessibility notes, tests, and future extension points.
 
+## Quest Journey
+
+Quest Journey is the v0.6 direction layer over the existing curriculum. It groups the current learning nodes into a readable path, distinguishes completed/recommended/available/locked work, explains prerequisites, and puts one deterministic “Recommended next” action on Home. An unfinished lesson can be continued from the same checkpoint, while Focus Quest remains an equally valid short alternative.
+
+Journey recommendations use actual curriculum, review, mistake, weakness, return, and active-session state. They do not add energy, currencies, artificial progress, or a second learning engine. See [docs/milestones/v0.6_QUEST_JOURNEY.md](docs/milestones/v0.6_QUEST_JOURNEY.md) for the node model, recommendation rules, resume integrity, future audio/discovery/artwork hooks, and verification notes.
+
 ## Development
 
 Run `npm run build` to copy the app into `dist/`. Serve the project through a local web server so browser ES modules load correctly.

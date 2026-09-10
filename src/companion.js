@@ -22,12 +22,15 @@ export const COMPANION_DIALOGUE={
   MILESTONE_REACHED:{surprised:['A new milestone already? That’s wonderful.']}
 };
 let listeners=[];
+const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,SESSION_STARTED:3,USER_RETURNED:3,LESSON_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4};
 export function companionState(){return getState().companionPresence}
 export function subscribeCompanion(fn){listeners.push(fn);return()=>{listeners=listeners.filter(x=>x!==fn)}}
 function pick(lines){return lines[Math.floor(Math.random()*lines.length)]}
 export function emitCompanion(event,payload={}){const key=reactionFor[event]||'idle',r=COMPANION_REACTIONS[key],now=Date.now(),presence=getState().companionPresence||{};
   const important=['LESSON_COMPLETED','MILESTONE_REACHED','USER_RETURNED','SESSION_COMPLETED','SESSION_STARTED'].includes(event);
-  if(!important&&now-(presence.lastEventAt||0)<1800)return r;
+  if(!important&&(priority[presence.event]||0)>=4&&now-(presence.lastEventAt||0)<1800)return r;
+  const streakUpgrade=event==='ANSWER_STREAK'&&presence.event==='ANSWER_CORRECT';
+  if(!important&&!streakUpgrade&&now-(presence.lastEventAt||0)<1800)return r;
   const lines=COMPANION_DIALOGUE[event]?.[key]||[];
   update(s=>{s.companionPresence={...s.companionPresence,reaction:key,event,message:payload.message||pick(lines)||r.message,lastEventAt:now,seenEvents:(s.companionPresence?.seenEvents||0)+1,lastSeenDate:new Date().toISOString().slice(0,10)}});
   listeners.forEach(fn=>fn({event,reaction:key,...payload}));return r}

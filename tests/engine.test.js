@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,describeSession,completeGrammar,completeConversation} from '../src/engine.js';
-import {getState,resetSave} from '../src/state.js';
+import {getState,resetSave,importSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
 test.beforeEach(()=>resetSave());
@@ -126,4 +126,13 @@ test('question and session boundaries reject malformed or empty inputs clearly',
   assert.throws(()=>createQuestion(null),/must include a content type/);
   assert.deepEqual(buildSession('focused',{items:[]}).items,[]);
   assert.deepEqual(buildSession('curriculum',{items:[]}).items,[]);
+});
+
+test('legacy saves migrate review records without losing counts',()=>{
+  importSave(JSON.stringify({xp:24,reviews:{legacy:{correct:2,wrong:1,interval:3,due:0}}}));
+  const review=getState().reviews.legacy;
+  assert.equal(getState().xp,24);
+  assert.equal(review.correct,2);
+  assert.equal(review.wrong,1);
+  assert.deepEqual(review.skills,{recognition:19,recall:0,listening:0,production:0});
 });

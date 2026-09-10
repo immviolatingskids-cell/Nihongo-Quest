@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,describeSession,completeGrammar,completeConversation} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession} from '../src/engine.js';
 import {getState,resetSave,importSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -135,4 +135,20 @@ test('legacy saves migrate review records without losing counts',()=>{
   assert.equal(review.correct,2);
   assert.equal(review.wrong,1);
   assert.deepEqual(review.skills,{recognition:19,recall:0,listening:0,production:0});
+});
+
+test('Focus Quest profiles create bounded, useful sessions and remember metadata',()=>{
+  for(const duration of [2,5,10]){
+    const focus=buildFocusSession(duration);
+    assert.equal(focus.mode,'focus');
+    assert.equal(focus.duration,duration);
+    assert.ok(focus.items.length<=focus.budget);
+    assert.ok(focus.items.every(item=>item.source));
+  }
+  recordFocusSession({duration:2,questionsAttempted:1,questionsCompleted:1,completed:false,earlyExit:true});
+  assert.equal(getState().focus.lastDuration,2);
+  assert.equal(getState().focus.sessions.at(-1).earlyExit,true);
+  assert.equal(focusResumeIndex({index:0,answered:false},3),0);
+  assert.equal(focusResumeIndex({index:0,answered:true},3),1);
+  assert.equal(focusResumeIndex({index:9,answered:true},3),2);
 });

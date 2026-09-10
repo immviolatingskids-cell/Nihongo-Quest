@@ -28,9 +28,10 @@ export function subscribeCompanion(fn){listeners.push(fn);return()=>{listeners=l
 function pick(lines){return lines[Math.floor(Math.random()*lines.length)]}
 export function emitCompanion(event,payload={}){const key=reactionFor[event]||'idle',r=COMPANION_REACTIONS[key],now=Date.now(),presence=getState().companionPresence||{};
   const important=['LESSON_COMPLETED','MILESTONE_REACHED','USER_RETURNED','SESSION_COMPLETED','SESSION_STARTED'].includes(event);
-  if(!important&&(priority[presence.event]||0)>=4&&now-(presence.lastEventAt||0)<1800)return r;
+  const cooldown=payload.focus?4200:1800;
+  if(!important&&(priority[presence.event]||0)>=4&&now-(presence.lastEventAt||0)<cooldown)return r;
   const streakUpgrade=event==='ANSWER_STREAK'&&presence.event==='ANSWER_CORRECT';
-  if(!important&&!streakUpgrade&&now-(presence.lastEventAt||0)<1800)return r;
+  if(!important&&!streakUpgrade&&now-(presence.lastEventAt||0)<cooldown)return r;
   const lines=COMPANION_DIALOGUE[event]?.[key]||[];
   update(s=>{s.companionPresence={...s.companionPresence,reaction:key,event,message:payload.message||pick(lines)||r.message,lastEventAt:now,seenEvents:(s.companionPresence?.seenEvents||0)+1,lastSeenDate:new Date().toISOString().slice(0,10)}});
   listeners.forEach(fn=>fn({event,reaction:key,...payload}));return r}

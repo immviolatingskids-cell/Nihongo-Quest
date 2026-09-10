@@ -1,14 +1,14 @@
 const KEY='nihongo-quest-v1';
 const today=()=>new Date().toISOString().slice(0,10);
 export const defaults=()=>({
- schemaVersion:3,xp:0,coins:30,streak:1,answerStreak:0,lastStudy:today(),studyDays:[today()],answers:[],processedAttempts:{},activeSession:null,reviews:{},kana:{},grammar:{},conversations:{},curriculum:{},companionPresence:{reaction:'idle',event:'INIT',message:'A quiet moment is still part of the journey.',lastEventAt:0,lastSeenDate:null,seenEvents:0},
+ schemaVersion:3,xp:0,coins:30,streak:1,answerStreak:0,lastStudy:today(),studyDays:[today()],answers:[],processedAttempts:{},activeSession:null,focus:{lastDuration:5,sessions:[]},reviews:{},kana:{},grammar:{},conversations:{},curriculum:{},companionPresence:{reaction:'idle',event:'INIT',message:'A quiet moment is still part of the journey.',lastEventAt:0,lastSeenDate:null,seenEvents:0},
  companion:'sakura',achievements:[],quests:{date:today(),review:0,master:0,conversation:0},
  settings:{romaji:true,furigana:true,reducedMotion:false,sound:true,fontSize:16,sessionLength:7}
 });
 let state=load();
 const storage=()=>globalThis.localStorage||{getItem:()=>null,setItem:()=>{}};
 function load(){try{return merge(defaults(),JSON.parse(storage().getItem(KEY)||'{}'))}catch{return defaults()}}
-function merge(base,saved){const next={...base,...saved,settings:{...base.settings,...saved?.settings},quests:{...base.quests,...saved?.quests},curriculum:{...base.curriculum,...saved?.curriculum},companionPresence:{...base.companionPresence,...saved?.companionPresence}};Object.entries(next.reviews||{}).forEach(([id,r])=>{if(!r.skills)r.skills={recognition:scoreFromOld(r),recall:0,listening:0,production:0};next.reviews[id]=r});next.schemaVersion=3;return next}
+function merge(base,saved){const next={...base,...saved,settings:{...base.settings,...saved?.settings},quests:{...base.quests,...saved?.quests},curriculum:{...base.curriculum,...saved?.curriculum},focus:{...base.focus,...saved?.focus,sessions:saved?.focus?.sessions||base.focus.sessions},companionPresence:{...base.companionPresence,...saved?.companionPresence}};Object.entries(next.reviews||{}).forEach(([id,r])=>{if(!r.skills)r.skills={recognition:scoreFromOld(r),recall:0,listening:0,production:0};next.reviews[id]=r});next.schemaVersion=3;return next}
 function scoreFromOld(r){return Math.min(100,Math.max(0,(r.correct||0)*14-(r.wrong||0)*9))}
 export function getState(){return state}
 export function update(mutator){mutator(state);storage().setItem(KEY,JSON.stringify(state));if(globalThis.document?.documentElement){document.documentElement.style.setProperty('--base-size',state.settings.fontSize+'px');document.documentElement.classList.toggle('reduce-motion',state.settings.reducedMotion)}return state}

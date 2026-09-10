@@ -23,22 +23,22 @@ export const overallMastery=r=>Math.round(Object.values(skillScores(r)).reduce((
 export const nextSkill=r=>[...SKILLS].sort((a,b)=>skillScores(r)[a]-skillScores(r)[b])[0];
 export const dueWords=()=>vocabulary.filter(w=>{const r=getState().reviews[w.id];return !r||!r.due||r.due<=Date.now()}).sort((a,b)=>(getState().reviews[b.id]?.wrong||0)-(getState().reviews[a.id]?.wrong||0));
 export const weakWords=()=>vocabulary.filter(w=>getState().reviews[w.id]?.wrong).sort((a,b)=>{const x=getState().reviews;return (x[b.id].wrong-x[b.id].correct)-(x[a.id].wrong-x[a.id].correct)});
-export function recordWord(id,correct,mode='recognition'){
+export function recordWord(id,correct,mode='recognition',meta={}){
  const skill=SKILLS.includes(mode)?mode:(mode==='listening'?'listening':'recognition');
  update(s=>{const r=s.reviews[id]||{correct:0,wrong:0,interval:0,due:0,skills:{recognition:0,recall:0,listening:0,production:0}};r.skills=skillScores(r);r.skills[skill]=Math.max(0,Math.min(100,r.skills[skill]+(correct?18:-11)));if(correct){r.correct++;const floor=Math.min(...Object.values(r.skills));r.interval=floor<30?1:floor<60?3:Math.min(30,Math.max(7,Math.round((r.interval||3)*1.7)));r.due=Date.now()+r.interval*DAY;s.xp+=skill==='production'?18:12}else{r.wrong++;r.interval=0;r.due=Date.now()+10*60*1000}r.last=Date.now();s.reviews[id]=r;s.answers.push({date:new Date().toISOString(),kind:'word',id,correct,mode:skill});s.quests.review++;if(mastery(r)>=4)s.quests.master=Math.max(s.quests.master,Object.values(s.reviews).filter(x=>mastery(x)>=4).length);touchDay(s)});
- checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{wordId:id});
+ checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{wordId:id,...meta});
 }
 export function recordAnswerResult(result){
  if(result.attemptId&&getState().processedAttempts?.[result.attemptId])return {...result,duplicate:true};
- if(result.contentType==='kana')recordKana(result.contentId,result.correct);
- else recordWord(result.contentId,result.correct,result.stage);
+ if(result.contentType==='kana')recordKana(result.contentId,result.correct,result);
+ else recordWord(result.contentId,result.correct,result.stage,result);
  if(result.attemptId)update(s=>{s.processedAttempts={...(s.processedAttempts||{}),[result.attemptId]:Date.now()}});
  update(s=>{s.answerStreak=result.correct?(s.answerStreak||0)+1:0});
- if(result.correct&&getState().answerStreak>=3)emitCompanion(COMPANION_EVENTS.ANSWER_STREAK,{streak:getState().answerStreak});
+ if(result.correct&&getState().answerStreak>=3)emitCompanion(COMPANION_EVENTS.ANSWER_STREAK,{streak:getState().answerStreak,focus:result.focus});
  return result;
 }
 export function completeSession(summary={}){emitCompanion(COMPANION_EVENTS.SESSION_COMPLETED,{message:summary.message||'Session complete — your practice is safely recorded.'});return summary;}
-export function recordKana(char,correct){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{kana:char})}
+export function recordKana(char,correct,meta={}){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{kana:char,...meta})}
 export function completeGrammar(id){if(getState().grammar[id]?.learned)return {id,duplicate:true};update(s=>{s.grammar[id]={learned:true,date:Date.now()};s.xp+=20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:'That grammar pattern is now in your journal.'});return {id,duplicate:false}}
 export function completeConversation(id,perfect){update(s=>{s.conversations[id]={count:(s.conversations[id]?.count||0)+1,perfect:perfect||s.conversations[id]?.perfect};s.quests.conversation++;s.xp+=perfect?30:20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:perfect?'A perfect conversation! Sakura is cheering for you.':'Conversation complete. Every reply helps.'})}
 function touchDay(s){const d=new Date().toISOString().slice(0,10);if(!s.studyDays.includes(d))s.studyDays.push(d);s.lastStudy=d}
@@ -54,6 +54,19 @@ export function buildSession(mode,options={}){
  if(mode==='curriculum')return {mode,reason:'curriculum requirement',items:options.items||[]};
  return {mode,reason:'practice',items:options.items||[]};
 }
+export const FOCUS_PROFILES={2:{duration:2,steps:3,label:'2-minute Focus Quest',prompt:'I just want to do something.'},5:{duration:5,steps:6,label:'5-minute Focus Quest',prompt:'A small focused session.'},10:{duration:10,steps:10,label:'10-minute Focus Quest',prompt:'A proper study session.'}};
+export function buildFocusSession(duration=5){
+ const profile=FOCUS_PROFILES[duration]||FOCUS_PROFILES[5],s=getState(),due=dueWords(),weak=weakWords(),seen=new Set(),items=[];
+ const add=(item,source)=>{const id=item.type==='word'?item.word.id:`kana:${item.char}`;if(seen.has(id))return;seen.add(id);items.push({...item,source})};
+ due.slice(0,profile.steps).forEach(word=>add({type:'word',word,stage:nextSkill(s.reviews[word.id])},'due review'));
+ weak.slice(0,profile.steps).forEach(word=>add({type:'word',word,stage:nextSkill(s.reviews[word.id])},'recent mistake'));
+ const family=kanaFamilies[Math.min(kanaFamilies.length-1,Math.floor(s.xp/100))];
+ family.items.slice(0,2).forEach(([char,romaji])=>add({type:'kana',char,romaji},'focused reinforcement'));
+ shuffle(vocabulary).forEach(word=>{if(items.length<profile.steps)add({type:'word',word,stage:'recognition'},'new material')});
+ return {mode:'focus',duration:profile.duration,reason:'focused low-friction practice',budget:profile.steps,items:items.slice(0,profile.steps)};
+}
+export function focusResumeIndex(checkpoint,total){return Math.min((checkpoint?.index||0)+(checkpoint?.answered?1:0),Math.max(0,total-1))}
+export function recordFocusSession(metadata){update(s=>{s.focus={...(s.focus||{}),lastDuration:metadata.duration,sessions:[...(s.focus?.sessions||[]),{...metadata,date:Date.now()}].slice(-20)}});return metadata}
 export function describeSession(session){return (session?.items||[]).map(item=>({contentId:item.type==='word'?item.word?.id:item.char,contentType:item.type,stage:item.stage||'recognition',source:item.source||session.reason||'practice',mastery:item.type==='word'?mastery(getState().reviews[item.word.id]):null}));}
 export function dailyQuests(){const s=getState();if(s.quests.date!==new Date().toISOString().slice(0,10))update(x=>x.quests={date:new Date().toISOString().slice(0,10),review:0,master:0,conversation:0});return [{label:'Review 10 items',value:s.quests.review,target:10,icon:'↻'},{label:'Master 2 words',value:s.quests.master,target:2,icon:'◆'},{label:'Complete a conversation',value:s.quests.conversation,target:1,icon:'💬'}]}
 export const weeklyQuest=()=>({label:'Study on 5 days',value:getState().studyDays.filter(d=>Date.now()-new Date(d).getTime()<7*DAY).length,target:5});

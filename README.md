@@ -22,6 +22,14 @@ Companion state and dialogue are centralized in `src/companion.js`, with presenc
 
 The v0.3 learning engine centralizes question construction, answer evaluation, progress recording, session composition, source metadata, and learning-event emission while preserving specialized grammar and conversation activities. See [docs/milestones/v0.3_LEARNING_ENGINE.md](docs/milestones/v0.3_LEARNING_ENGINE.md) for the architecture and verification record.
 
+## Focus Quest
+
+Focus Quest is the low-friction v0.4 study mode. From Home, choose an approximate 2-, 5-, or 10-minute session and begin immediately. The existing engine composes a short, useful batch from due reviews, recent mistakes, weak skills, reinforcement, and appropriate new material; the duration is a learning budget, not a countdown.
+
+Focus sessions use a calm single-question layout with lightweight progress, safe interruption, and local checkpoints. Answers already recorded are never undone, and an unfinished session can be continued or safely discarded with **Start fresh**. Completion offers an optional **Keep going +2 minutes** extension, while **That’s enough for today** is always a valid finish.
+
+Focus Quest also remembers the last selected duration, records small local session metadata, and gives Sakura a longer reaction cooldown so concentration is not interrupted. See [docs/milestones/v0.4_FOCUS_QUEST.md](docs/milestones/v0.4_FOCUS_QUEST.md) for the architecture, persistence behavior, QA notes, known limitations, and v0.5 extension points.
+
 ## Development
 
 Run `npm run build` to copy the app into `dist/`. Serve the project through a local web server so browser ES modules load correctly.

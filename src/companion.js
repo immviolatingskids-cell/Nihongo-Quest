@@ -11,7 +11,7 @@ export const COMPANION_REACTIONS={
  sleepy:{label:'Sleepy',emoji:'🌙',tone:'sleepy',message:'A gentle review is plenty for tonight.'},
  welcome:{label:'Welcome back',emoji:'🌷',tone:'welcome',message:'Welcome back. Ready for one more little step?'}
 };
-const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging'};
+const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',SESSION_STARTED:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging'};
 export const COMPANION_DIALOGUE={
   SESSION_STARTED:{welcome:['Ready when you are. Let’s learn together.','A small step is enough for today.']},
   USER_RETURNED:{welcome:['Welcome back! Want something easy to warm up?','Good to see you again. We can ease in gently.']},

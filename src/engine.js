@@ -31,8 +31,11 @@ export function recordAnswerResult(result){
  if(result.contentType==='kana')recordKana(result.contentId,result.correct);
  else recordWord(result.contentId,result.correct,result.stage);
  if(result.attemptId)update(s=>{s.processedAttempts={...(s.processedAttempts||{}),[result.attemptId]:Date.now()}});
+ update(s=>{s.answerStreak=result.correct?(s.answerStreak||0)+1:0});
+ if(result.correct&&getState().answerStreak>=3)emitCompanion(COMPANION_EVENTS.ANSWER_STREAK,{streak:getState().answerStreak});
  return result;
 }
+export function completeSession(summary={}){emitCompanion(COMPANION_EVENTS.SESSION_COMPLETED,{message:summary.message||'Session complete — your practice is safely recorded.'});return summary;}
 export function recordKana(char,correct){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{kana:char})}
 export function completeGrammar(id){update(s=>{s.grammar[id]={learned:true,date:Date.now()};s.xp+=20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:'That grammar pattern is now in your journal.'})}
 export function completeConversation(id,perfect){update(s=>{s.conversations[id]={count:(s.conversations[id]?.count||0)+1,perfect:perfect||s.conversations[id]?.perfect};s.quests.conversation++;s.xp+=perfect?30:20;touchDay(s)});checkAchievements();emitCompanion(COMPANION_EVENTS.LESSON_COMPLETE,{message:perfect?'A perfect conversation! Sakura is cheering for you.':'Conversation complete. Every reply helps.'})}

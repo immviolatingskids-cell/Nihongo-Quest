@@ -1,7 +1,7 @@
 const KEY='nihongo-quest-v1';
 const today=()=>new Date().toISOString().slice(0,10);
 export const defaults=()=>({
- schemaVersion:3,xp:0,coins:30,streak:1,lastStudy:today(),studyDays:[today()],answers:[],processedAttempts:{},reviews:{},kana:{},grammar:{},conversations:{},curriculum:{},companionPresence:{reaction:'idle',event:'INIT',message:'A quiet moment is still part of the journey.',lastEventAt:0,lastSeenDate:null,seenEvents:0},
+ schemaVersion:3,xp:0,coins:30,streak:1,answerStreak:0,lastStudy:today(),studyDays:[today()],answers:[],processedAttempts:{},reviews:{},kana:{},grammar:{},conversations:{},curriculum:{},companionPresence:{reaction:'idle',event:'INIT',message:'A quiet moment is still part of the journey.',lastEventAt:0,lastSeenDate:null,seenEvents:0},
  companion:'sakura',achievements:[],quests:{date:today(),review:0,master:0,conversation:0},
  settings:{romaji:true,furigana:true,reducedMotion:false,sound:true,fontSize:16,sessionLength:7}
 });

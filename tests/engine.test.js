@@ -47,6 +47,15 @@ test('canonical recording is idempotent for repeated attempt IDs',()=>{
   assert.equal(getState().xp,8);
 });
 
+test('engine owns answer streak events after three correct attempts',()=>{
+  const events=[];
+  const unsubscribe=subscribeCompanion(event=>events.push(event.event));
+  for(let i=0;i<3;i++)recordAnswerResult({...evaluateAnswer(createQuestion({type:'kana',char:['あ','い','う'][i],romaji:['a','i','u'][i]}),'a'.replace('a',['a','i','u'][i])),attemptId:`streak:${i}`});
+  unsubscribe();
+  assert.ok(events.includes('ANSWER_STREAK'));
+  assert.equal(getState().answerStreak,3);
+});
+
 test('session builders expose selection reasons',()=>{
   const journey=journeyItems();
   assert.ok(journey.length>0);

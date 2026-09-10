@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession,completeGrammar,completeConversation} from '../src/engine.js';
 import {getState,resetSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -79,4 +79,18 @@ test('conversation evaluation reuses structured results without vocabulary assum
   assert.equal(result.contentType,'conversation');
   assert.equal(result.contentId,'intro');
   assert.equal(result.stage,'conversation');
+});
+
+test('grammar completion is idempotent',()=>{
+  completeGrammar('grammar.test');
+  const duplicate=completeGrammar('grammar.test');
+  assert.equal(duplicate.duplicate,true);
+  assert.equal(getState().xp,20);
+});
+
+test('conversation completion awards one scenario result',()=>{
+  completeConversation('scenario.test',true);
+  assert.equal(getState().conversations['scenario.test'].count,1);
+  assert.equal(getState().quests.conversation,1);
+  assert.equal(getState().xp,30);
 });

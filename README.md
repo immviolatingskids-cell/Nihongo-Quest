@@ -58,6 +58,12 @@ v0.8A adds a first-class Shop foundation where learners can browse culturally gr
 
 Run `npm run culture:report` to validate the catalogue and see image/audio/placement coverage. See [docs/milestones/v0.8A_CULTURAL_COLLECTION_FOUNDATION.md](docs/milestones/v0.8A_CULTURAL_COLLECTION_FOUNDATION.md) for the registry, persistence contract, asset handoff and v0.8B plan.
 
+## Cultural Discovery & Sakura's Room
+
+v0.9 connects Cultural Collection unlocks to real curriculum and achievement progress, acknowledges discoveries through their knowledge cards, and gives owned objects a purpose in Sakura's Room. The room combines a generated static background with seven accessible, responsive HTML placement zones. One compatible owned item can occupy each zone, with placement persisted in the v4 save schema and invalid imported state ignored safely.
+
+See [docs/milestones/v0.9_CULTURAL_DISCOVERY_AND_SAKURAS_ROOM.md](docs/milestones/v0.9_CULTURAL_DISCOVERY_AND_SAKURAS_ROOM.md) for the discovery contract, room model, accessibility behavior, and verification gates.
+
 ## Development
 
 Run `npm run build` to copy the app into `dist/`. Serve the project through a local web server so browser ES modules load correctly.

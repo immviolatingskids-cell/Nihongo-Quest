@@ -27,8 +27,10 @@ export function recordWord(id,correct,mode='recognition'){
  checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{wordId:id});
 }
 export function recordAnswerResult(result){
+ if(result.attemptId&&getState().processedAttempts?.[result.attemptId])return {...result,duplicate:true};
  if(result.contentType==='kana')recordKana(result.contentId,result.correct);
  else recordWord(result.contentId,result.correct,result.stage);
+ if(result.attemptId)update(s=>{s.processedAttempts={...(s.processedAttempts||{}),[result.attemptId]:Date.now()}});
  return result;
 }
 export function recordKana(char,correct){update(s=>{const r=s.kana[char]||{correct:0,wrong:0};r[correct?'correct':'wrong']++;s.kana[char]=r;s.answers.push({date:new Date().toISOString(),kind:'kana',id:char,correct});if(correct)s.xp+=8;touchDay(s)});checkAchievements();emitCompanion(correct?COMPANION_EVENTS.ANSWER_CORRECT:COMPANION_EVENTS.ANSWER_INCORRECT,{kana:char})}

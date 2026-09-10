@@ -38,6 +38,15 @@ test('recording an answer emits one companion answer event',()=>{
   assert.deepEqual(events,['ANSWER_CORRECT']);
 });
 
+test('canonical recording is idempotent for repeated attempt IDs',()=>{
+  const result={...evaluateAnswer(createQuestion({type:'kana',char:'あ',romaji:'a'}),'a'),attemptId:'session-1:0'};
+  recordAnswerResult(result);
+  const duplicate=recordAnswerResult(result);
+  assert.equal(duplicate.duplicate,true);
+  assert.equal(getState().answers.length,1);
+  assert.equal(getState().xp,8);
+});
+
 test('session builders expose selection reasons',()=>{
   const journey=journeyItems();
   assert.ok(journey.length>0);

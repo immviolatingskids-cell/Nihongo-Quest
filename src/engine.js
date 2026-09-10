@@ -7,8 +7,9 @@ export const SKILLS=['recognition','recall','listening','production'];
 export const QUESTION_TYPES={WORD:'word',KANA:'kana'};
 export const normalizeAnswer=value=>String(value??'').normalize('NFKC').replace(/[。、.!！?？\s]/g,'').toLowerCase();
 export function createQuestion(item,{source='practice'}={}){
+ if(!item||!item.type)throw new TypeError('A question item must include a content type.');
  if(item.type==='kana')return {id:`kana:${item.char}`,contentId:item.char,contentType:'kana',stage:item.stage||'recognition',prompt:item.char,expected:item.romaji,accepted:[],inputType:'choice',choices:item.options||[],audioTarget:item.char,source,metadata:{romaji:item.romaji}};
- const word=item.word,stage=item.stage||'recognition';
+ const word=item.word;if(!word?.id||!word.kana)throw new TypeError('A vocabulary question requires a word id and kana.');const stage=item.stage||'recognition';
  const prompt=item.prompt??(stage==='recall'?word.meaning:stage==='production'?word.exampleEn:word.kana);
  const expected=item.answer|| (stage==='recall'||stage==='production'?word.kana:word.meaning);
  const japaneseAnswer=expected===word.kana||stage==='recall'||stage==='production';

@@ -120,3 +120,10 @@ test('question contracts cover recall, listening and production stages',()=>{
   assert.equal(evaluateAnswer(recall,'taberu').correct,true);
   assert.equal(evaluateAnswer(production,'たべる').correct,true);
 });
+
+test('question and session boundaries reject malformed or empty inputs clearly',()=>{
+  assert.throws(()=>createQuestion({type:'word',word:{id:'missing-kana'}}),/requires a word id and kana/);
+  assert.throws(()=>createQuestion(null),/must include a content type/);
+  assert.deepEqual(buildSession('focused',{items:[]}).items,[]);
+  assert.deepEqual(buildSession('curriculum',{items:[]}).items,[]);
+});

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession} from '../src/engine.js';
 import {getState,resetSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -43,4 +43,14 @@ test('session builders expose selection reasons',()=>{
   assert.ok(journey.length>0);
   assert.ok(journey.every(item=>item.source));
   assert.ok(Array.isArray(mistakeItems()));
+});
+
+test('canonical session dispatcher and debug view preserve mode context',()=>{
+  const session=buildSession('review',{length:3});
+  assert.equal(session.mode,'review');
+  assert.equal(session.reason,'due review');
+  assert.ok(session.items.length<=3);
+  const debug=describeSession(session);
+  assert.equal(debug.length,session.items.length);
+  assert.ok(debug.every(item=>item.source==='due review'));
 });

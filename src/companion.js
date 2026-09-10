@@ -1,6 +1,6 @@
 import {getState,update} from './state.js';
 
-export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',GARDEN_GROWTH:'GARDEN_GROWTH',GARDEN_LEVEL_UP:'GARDEN_LEVEL_UP',GARDEN_UNLOCK:'GARDEN_UNLOCK',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
+export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',GARDEN_GROWTH:'GARDEN_GROWTH',GARDEN_LEVEL_UP:'GARDEN_LEVEL_UP',GARDEN_UNLOCK:'GARDEN_UNLOCK',CULTURAL_ITEM_DISCOVERED:'CULTURAL_ITEM_DISCOVERED',CULTURAL_ITEM_ACQUIRED:'CULTURAL_ITEM_ACQUIRED',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
 export const COMPANION_REACTIONS={
  idle:{label:'Idle',emoji:'🌸',tone:'idle',message:'A quiet moment is still part of the journey.'},
  happy:{label:'Happy',emoji:'😊',tone:'happy',message:'Nice one! That answer is settling in.'},
@@ -11,7 +11,7 @@ export const COMPANION_REACTIONS={
  sleepy:{label:'Sleepy',emoji:'🌙',tone:'sleepy',message:'A gentle review is plenty for tonight.'},
  welcome:{label:'Welcome back',emoji:'🌷',tone:'welcome',message:'Welcome back. Ready for one more little step?'}
 };
-const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',SESSION_STARTED:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging'};
+const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',SESSION_STARTED:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging',CULTURAL_ITEM_DISCOVERED:'surprised',CULTURAL_ITEM_ACQUIRED:'surprised'};
 export const COMPANION_DIALOGUE={
   SESSION_STARTED:{welcome:['Ready when you are. Let’s learn together.','A small step is enough for today.']},
   USER_RETURNED:{welcome:['Welcome back! Want something easy to warm up?','Good to see you again. We can ease in gently.']},
@@ -23,6 +23,8 @@ export const COMPANION_DIALOGUE={
   GARDEN_GROWTH:{surprised:['Look — your Garden grew a little.','Your tree is really starting to grow.']},
   GARDEN_LEVEL_UP:{surprised:['Your Garden has reached a new level. What a lovely trace of learning.']},
   GARDEN_UNLOCK:{surprised:['A new Garden detail appeared because of what you learned.']}
+  ,CULTURAL_ITEM_DISCOVERED:{surprised:['A new cultural story has found its way to the Shop.']}
+  ,CULTURAL_ITEM_ACQUIRED:{surprised:['Your collection has a new piece of Japanese life.']}
 };
 let listeners=[];
 const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,SESSION_STARTED:3,USER_RETURNED:3,LESSON_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4,GARDEN_GROWTH:3,GARDEN_LEVEL_UP:4,GARDEN_UNLOCK:4};

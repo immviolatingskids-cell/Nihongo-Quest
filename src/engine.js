@@ -1,8 +1,16 @@
 import {vocabulary,kanaFamilies,grammar,companions,confusionPairs,curriculum} from './data.js';
 import {getState,update} from './state.js';
 import {emitCompanion,COMPANION_EVENTS} from './companion.js';
+import {culturalById,culturalItems} from './cultural-items.js';
 const DAY=86400000;
 export const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+export const cultureState=(s=getState())=>s.culture||{discovered:[],owned:[],acknowledged:[],shopVisits:0};
+export const isDiscovered=id=>cultureState().discovered.includes(id);
+export const isOwned=id=>cultureState().owned.includes(id);
+export function discoverItem(id){if(!culturalById.has(id))return {ok:false,reason:'invalid',id};if(isDiscovered(id))return {ok:true,duplicate:true,item:culturalById.get(id)};update(s=>s.culture.discovered=[...new Set([...(s.culture?.discovered||[]),id])]);emitCompanion(COMPANION_EVENTS.CULTURAL_ITEM_DISCOVERED,{itemId:id});return {ok:true,duplicate:false,item:culturalById.get(id)}}
+export function canAcquire(itemOrId){const item=typeof itemOrId==='string'?culturalById.get(itemOrId):itemOrId;return Boolean(item&&isDiscovered(item.id)&&!isOwned(item.id))}
+export function acquireItem(itemOrId){const item=typeof itemOrId==='string'?culturalById.get(itemOrId):itemOrId;if(!item)return {ok:false,reason:'invalid'};if(!isDiscovered(item.id))return {ok:false,reason:'undiscovered',item};if(isOwned(item.id))return {ok:true,duplicate:true,item};update(s=>s.culture.owned=[...new Set([...(s.culture?.owned||[]),item.id])]);emitCompanion(COMPANION_EVENTS.CULTURAL_ITEM_ACQUIRED,{itemId:item.id});return {ok:true,duplicate:false,item}}
+export function culturalFeaturedItem(s=getState()){const c=cultureState(s);return culturalItems.find(x=>c.discovered.includes(x.id)&&!c.owned.includes(x.id))||culturalItems.find(x=>c.discovered.includes(x.id))||culturalItems[0]}
 export const SKILLS=['recognition','recall','listening','production'];
 export const QUESTION_TYPES={WORD:'word',KANA:'kana'};
 export const normalizeAnswer=value=>String(value??'').normalize('NFKC').replace(/[。、.!！?？\s]/g,'').toLowerCase();

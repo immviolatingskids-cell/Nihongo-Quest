@@ -1,6 +1,6 @@
 import {getState,update} from './state.js';
 
-export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
+export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',GARDEN_GROWTH:'GARDEN_GROWTH',GARDEN_LEVEL_UP:'GARDEN_LEVEL_UP',GARDEN_UNLOCK:'GARDEN_UNLOCK',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
 export const COMPANION_REACTIONS={
  idle:{label:'Idle',emoji:'🌸',tone:'idle',message:'A quiet moment is still part of the journey.'},
  happy:{label:'Happy',emoji:'😊',tone:'happy',message:'Nice one! That answer is settling in.'},
@@ -19,10 +19,13 @@ export const COMPANION_DIALOGUE={
   ANSWER_INCORRECT:{encouraging:['Keep going. One small step is enough.','No worries — let’s look at the pattern together.']},
   ANSWER_STREAK:{celebrating:['You’re finding your rhythm.','A lovely little streak is growing.']},
   LESSON_COMPLETED:{celebrating:['You finished a lesson. That is worth celebrating.','Lesson complete — your Japanese grew today.']},
-  MILESTONE_REACHED:{surprised:['A new milestone already? That’s wonderful.']}
+  MILESTONE_REACHED:{surprised:['A new milestone already? That’s wonderful.']},
+  GARDEN_GROWTH:{surprised:['Look — your Garden grew a little.','Your tree is really starting to grow.']},
+  GARDEN_LEVEL_UP:{surprised:['Your Garden has reached a new level. What a lovely trace of learning.']},
+  GARDEN_UNLOCK:{surprised:['A new Garden detail appeared because of what you learned.']}
 };
 let listeners=[];
-const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,SESSION_STARTED:3,USER_RETURNED:3,LESSON_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4};
+const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,SESSION_STARTED:3,USER_RETURNED:3,LESSON_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4,GARDEN_GROWTH:3,GARDEN_LEVEL_UP:4,GARDEN_UNLOCK:4};
 export function companionState(){return getState().companionPresence}
 export function subscribeCompanion(fn){listeners.push(fn);return()=>{listeners=listeners.filter(x=>x!==fn)}}
 function pick(lines){return lines[Math.floor(Math.random()*lines.length)]}

@@ -30,6 +30,12 @@ Focus sessions use a calm single-question layout with lightweight progress, safe
 
 Focus Quest also remembers the last selected duration, records small local session metadata, and gives Sakura a longer reaction cooldown so concentration is not interrupted. See [docs/milestones/v0.4_FOCUS_QUEST.md](docs/milestones/v0.4_FOCUS_QUEST.md) for the architecture, persistence behavior, QA notes, known limitations, and v0.5 extension points.
 
+## Sakura Garden
+
+The Garden turns genuine learning into visible, persistent traces. Mastered vocabulary grows blossoms, strengthened kana extends the stone path, grammar lights lanterns, curriculum chapters grow branches, and completed conversations bring songbirds. Garden level and growth are derived from the same reviews, kana, grammar, conversation, and curriculum state used by learning; selecting a session or taking time away never changes them.
+
+The Garden screen shows the current level, transparent growth toward the next level, the next meaningful unlock, recent growth, and category contributions. Unlock notifications go through Sakura's existing event system and are protected against duplicates. See [docs/milestones/v0.5_SAKURA_GARDEN.md](docs/milestones/v0.5_SAKURA_GARDEN.md) for the progression model, persistence strategy, accessibility notes, tests, and future extension points.
+
 ## Development
 
 Run `npm run build` to copy the app into `dist/`. Serve the project through a local web server so browser ES modules load correctly.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession,gardenProgress,gardenGrowthScore,syncGardenProgress} from '../src/engine.js';
 import {getState,resetSave,importSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -151,4 +151,34 @@ test('Focus Quest profiles create bounded, useful sessions and remember metadata
   assert.equal(focusResumeIndex({index:0,answered:false},3),0);
   assert.equal(focusResumeIndex({index:0,answered:true},3),1);
   assert.equal(focusResumeIndex({index:9,answered:true},3),2);
+});
+
+test('Garden growth derives balanced contributions from meaningful learning',()=>{
+  const review={correct:4,wrong:0,skills:{recognition:80,recall:80,listening:80,production:80}};
+  importSave(JSON.stringify({reviews:{ohayo:review},kana:{'あ':{correct:3,wrong:0}},grammar:{desu:{learned:true}},conversations:{intro:{count:1}},curriculum:{'path.kana.vowels':{complete:true}}}));
+  const garden=gardenProgress();
+  assert.deepEqual(garden.counts,{blossoms:1,kana:1,grammar:1,conversations:1,branches:1});
+  assert.equal(gardenGrowthScore(garden.counts),17);
+  assert.equal(garden.level,2);
+  assert.ok(garden.unlocked.includes('first-blossom'));
+  assert.ok(garden.unlocked.includes('lantern'));
+});
+
+test('Garden unlock and growth events are durable and non-duplicating',()=>{
+  importSave(JSON.stringify({reviews:{ohayo:{correct:4,wrong:0,skills:{recognition:80,recall:80,listening:80,production:80}}},garden:{initialized:true,lastCounts:{blossoms:0,kana:0,grammar:0,conversations:0,branches:0},milestones:[],recentGrowth:[]}}));
+  const events=[];const unsubscribe=subscribeCompanion(event=>events.push(event.event));
+  syncGardenProgress();syncGardenProgress();unsubscribe();
+  assert.equal(events.filter(event=>event==='GARDEN_UNLOCK').length,1);
+  assert.equal(getState().garden.milestones.length,1);
+  assert.equal(getState().garden.recentGrowth.length>0,true);
+});
+
+test('Garden level boundaries are deterministic and never decay',()=>{
+  const review={correct:4,wrong:0,skills:{recognition:80,recall:80,listening:80,production:80}};
+  importSave(JSON.stringify({reviews:{ohayo:review,konnichiwa:review},garden:{initialized:true,lastCounts:{blossoms:0,kana:0,grammar:0,conversations:0,branches:0},milestones:[],recentGrowth:[]}}));
+  const before=gardenProgress();
+  assert.equal(before.score,8);
+  assert.equal(before.level,2);
+  assert.equal(gardenProgress().level,2);
+  assert.equal(gardenProgress().score,8);
 });

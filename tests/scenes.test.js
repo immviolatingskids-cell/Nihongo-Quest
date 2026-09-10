@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {SCENES,SCENE_IDS,sceneById,sceneFrame,validateScenes,renderScene,renderCharacterSlot} from '../src/scenes.js';
+import {ROOM_ZONES,gardenProgress} from '../src/engine.js';
+
+test('Living World scene registry is valid and contains implemented environments',()=>{const report=validateScenes();assert.equal(report.valid,true,report.errors.join('\n'));assert.deepEqual(SCENE_IDS,['aoi-shop','sakura-room','sakura-garden']);assert.equal(SCENES['sakura-garden'].growthCompatible,true)});
+test('scene lookup is explicit and never invents missing registry entries',()=>{assert.equal(sceneById('sakura-room'),SCENES['sakura-room']);assert.equal(sceneById('not-real'),null)});
+test('registered runtime artwork exists and uses optimized WebP assets',()=>{for(const scene of Object.values(SCENES)){assert.match(scene.background,/\.webp$/);assert.equal(fs.existsSync(path.resolve('src',scene.background)),true,scene.background)}});
+test('every scene has intentional desktop tablet and mobile framing',()=>{for(const id of SCENE_IDS)for(const viewport of ['desktop','tablet','mobile']){const frame=sceneFrame(id,viewport);assert.ok(frame.position);assert.ok(frame.aspectRatio);assert.ok(frame.minHeight)}});
+test('unknown scenes render an accessible lightweight fallback',()=>{const html=renderScene({id:'missing-location',content:'<button>Continue</button>'});assert.match(html,/scene-missing/);assert.match(html,/Illustrated location unavailable/);assert.match(html,/<button>Continue<\/button>/)});
+test('scene rendering keeps character and interface content independent',()=>{const character=renderCharacterSlot({id:'sakura',state:'happy',image:'sakura.webp',description:'Sakura smiling'});assert.match(character,/data-character="sakura"/);assert.match(character,/Sakura smiling/);const html=renderScene({id:'sakura-room',content:'<button>Place item</button>',character:{id:'sakura',image:'sakura.webp',description:'Sakura'}});assert.match(html,/scene-atmosphere/);assert.match(html,/scene-foreground/);assert.match(html,/<button>Place item<\/button>/)});
+test('current Room Shop and Garden views mount through the shared registry boundary',()=>{const app=fs.readFileSync(path.resolve('src/app.js'),'utf8');assert.match(app,/mountRegisteredScenes\(app\)/);for(const selector of ['room-scene','shopkeeper-card','garden-scene'])assert.match(app,new RegExp(selector));assert.match(app,/ROOM_ZONES\.map/)});
+test('Sakura Room keeps seven canonical controls and Garden state stays in its domain engine',()=>{assert.equal(ROOM_ZONES.length,7);assert.equal(typeof gardenProgress,'function');assert.equal(Object.hasOwn(SCENES['sakura-garden'],'level'),false)});

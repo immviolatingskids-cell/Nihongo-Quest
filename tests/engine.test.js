@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,journeyItems,mistakeItems,buildSession,describeSession,completeGrammar,completeConversation} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,describeSession,completeGrammar,completeConversation} from '../src/engine.js';
 import {getState,resetSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -97,4 +97,15 @@ test('conversation completion awards one scenario result',()=>{
 
 test('save state reserves a compact active-session checkpoint',()=>{
   assert.equal(getState().activeSession,null);
+});
+
+test('skill progression advances through the supported ladder',()=>{
+  const id='word.progression';
+  assert.equal(nextSkill(undefined),'recognition');
+  recordWord(id,true,'recognition');
+  assert.equal(nextSkill(getState().reviews[id]),'recall');
+  recordWord(id,true,'recall');
+  assert.equal(nextSkill(getState().reviews[id]),'listening');
+  recordWord(id,true,'listening');
+  assert.equal(nextSkill(getState().reviews[id]),'production');
 });

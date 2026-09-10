@@ -10,7 +10,9 @@ export function createQuestion(item,{source='practice'}={}){
  if(item.type==='kana')return {id:`kana:${item.char}`,contentId:item.char,contentType:'kana',stage:item.stage||'recognition',prompt:item.char,expected:item.romaji,accepted:[],inputType:'choice',choices:item.options||[],audioTarget:item.char,source,metadata:{romaji:item.romaji}};
  const word=item.word,stage=item.stage||'recognition';
  const prompt=item.prompt??(stage==='recall'?word.meaning:stage==='production'?word.exampleEn:word.kana);
- return {id:`${word.id}:${stage}`,contentId:word.id,contentType:'word',stage,prompt,expected:item.answer|| (stage==='recall'||stage==='production'?word.kana:word.meaning),accepted:item.accepted||[word.romaji],inputType:item.inputType||(stage==='recall'||stage==='production'?'text':'choice'),choices:item.options||[],audioTarget:word.kana,source,metadata:{word}};
+ const expected=item.answer|| (stage==='recall'||stage==='production'?word.kana:word.meaning);
+ const japaneseAnswer=expected===word.kana||stage==='recall'||stage==='production';
+ return {id:`${word.id}:${stage}`,contentId:word.id,contentType:'word',stage,prompt,expected,accepted:item.accepted||(japaneseAnswer?[word.romaji]:[]),inputType:item.inputType||(stage==='recall'||stage==='production'?'text':'choice'),choices:item.options||[],audioTarget:word.kana,source,metadata:{word}};
 }
 export function evaluateAnswer(question,submitted){const value=String(submitted??''),expected=String(question.expected??''),accepted=[expected,...(question.accepted||[])].filter(Boolean);const matched=accepted.find(answer=>normalizeAnswer(answer)===normalizeAnswer(value));return {correct:Boolean(matched),submitted:value,expected,matchedAlternative:matched&&matched!==expected?matched:null,contentId:question.contentId,contentType:question.contentType,stage:question.stage,source:question.source,questionId:question.id};}
 export const skillScores=r=>({recognition:0,recall:0,listening:0,production:0,...r?.skills});

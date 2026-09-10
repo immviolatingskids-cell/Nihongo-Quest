@@ -17,6 +17,8 @@ test('supports accepted alternatives and structured result metadata',()=>{
   const q=createQuestion({type:'word',word:{id:'w1',kana:'わたし',romaji:'watashi'},stage:'recognition',prompt:'わたし',answer:'I / me',accepted:['watashi']},{source:'due review'});
   const result=evaluateAnswer(q,'watashi');
   assert.deepEqual({correct:result.correct,matchedAlternative:result.matchedAlternative,contentId:result.contentId,stage:result.stage,source:result.source},{correct:true,matchedAlternative:'watashi',contentId:'w1',stage:'recognition',source:'due review'});
+  const meaningQuestion=createQuestion({type:'word',word:{id:'w2',kana:'みず',romaji:'mizu'},stage:'recognition',prompt:'みず',answer:'water'});
+  assert.equal(evaluateAnswer(meaningQuestion,'mizu').correct,false);
 });
 
 test('one answer result records one progress event and XP award',()=>{

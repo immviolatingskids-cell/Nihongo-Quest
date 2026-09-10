@@ -18,7 +18,12 @@ Companion state and dialogue are centralized in `src/companion.js`, with presenc
 - `src/app.js` — screens, sessions and interaction handling
 - `src/companion.js` — Sakura events, states, dialogue and reaction throttling
 - `src/styles.css` — responsive visual system
+- `tests/engine.test.js` — learning-engine contracts and integrity tests
+
+The v0.3 learning engine centralizes question construction, answer evaluation, progress recording, session composition, source metadata, and learning-event emission while preserving specialized grammar and conversation activities. See [docs/milestones/v0.3_LEARNING_ENGINE.md](docs/milestones/v0.3_LEARNING_ENGINE.md) for the architecture and verification record.
 
 ## Development
 
 Run `npm run build` to copy the app into `dist/`. Serve the project through a local web server so browser ES modules load correctly.
+
+Run `npm test` to execute the learning-engine regression suite.

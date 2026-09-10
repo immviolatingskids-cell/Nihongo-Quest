@@ -109,3 +109,14 @@ test('skill progression advances through the supported ladder',()=>{
   recordWord(id,true,'listening');
   assert.equal(nextSkill(getState().reviews[id]),'production');
 });
+
+test('question contracts cover recall, listening and production stages',()=>{
+  const word={id:'word.stages',kana:'たべる',romaji:'taberu',meaning:'to eat',example:'りんごをたべます。',exampleEn:'I eat an apple.'};
+  const recall=createQuestion({type:'word',word,stage:'recall'});
+  const listening=createQuestion({type:'word',word,stage:'listening',answer:word.meaning});
+  const production=createQuestion({type:'word',word,stage:'production'});
+  assert.deepEqual([recall.expected,listening.expected,production.expected],['たべる','to eat','たべる']);
+  assert.deepEqual([recall.inputType,listening.inputType,production.inputType],['text','choice','text']);
+  assert.equal(evaluateAnswer(recall,'taberu').correct,true);
+  assert.equal(evaluateAnswer(production,'たべる').correct,true);
+});

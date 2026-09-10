@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force dist,dist/src,dist/assets,dist/assets/culture | Out-Null; Copy-Item index.html dist/index.html -Force; Copy-Item src/*.js,src/*.css dist/src/ -Force; Copy-Item assets/*.webp dist/assets/ -Force; Copy-Item assets/culture/*.png dist/assets/culture/ -Force\"",
+    "build": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force dist,dist/src,dist/assets,dist/assets/culture,dist/assets/shop | Out-Null; Copy-Item index.html dist/index.html -Force; Copy-Item src/*.js,src/*.css dist/src/ -Force; Copy-Item assets/*.webp dist/assets/ -Force; Copy-Item assets/culture/*.png dist/assets/culture/ -Force; Copy-Item assets/shop/*.png dist/assets/shop/ -Force\"",
     "test": "node --test tests/*.test.js",
     "audio:report": "node scripts/audio-manifest.js",
     "culture:report": "node scripts/culture-report.js"

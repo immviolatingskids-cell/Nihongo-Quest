@@ -27,3 +27,9 @@ test('Sakura Horizon layout includes tablet, mobile, focus, and reduced-motion r
   assert.match(css,/\.journey-node-body:focus-visible/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\).*\.home-welcome/s);
 });
+
+test('release hardening keeps mobile navigation readable and key artwork stable',()=>{
+  assert.match(css,/\.mobile-nav\{display:grid;grid-template-columns:repeat\(5,1fr\)/);
+  assert.match(app,/sakura-companion\.webp" alt="Sakura, your learning companion" width="480" height="560" loading="lazy"/);
+  assert.match(app,/data-companion-event/);
+});

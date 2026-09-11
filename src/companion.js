@@ -1,6 +1,6 @@
 import {getState,update} from './state.js';
 
-export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',GARDEN_GROWTH:'GARDEN_GROWTH',GARDEN_LEVEL_UP:'GARDEN_LEVEL_UP',GARDEN_UNLOCK:'GARDEN_UNLOCK',CULTURAL_ITEM_DISCOVERED:'CULTURAL_ITEM_DISCOVERED',CULTURAL_ITEM_ACQUIRED:'CULTURAL_ITEM_ACQUIRED',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
+export const COMPANION_EVENTS={SESSION_STARTED:'SESSION_STARTED',FIRST_VISIT:'FIRST_VISIT',ANSWER_CORRECT:'ANSWER_CORRECT',ANSWER_INCORRECT:'ANSWER_INCORRECT',ANSWER_STREAK:'ANSWER_STREAK',LESSON_STARTED:'LESSON_STARTED',QUEST_STARTED:'QUEST_STARTED',LESSON_COMPLETED:'LESSON_COMPLETED',QUEST_COMPLETED:'QUEST_COMPLETED',MILESTONE_REACHED:'MILESTONE_REACHED',USER_RETURNED:'USER_RETURNED',SESSION_COMPLETED:'SESSION_COMPLETED',GARDEN_GROWTH:'GARDEN_GROWTH',GARDEN_LEVEL_UP:'GARDEN_LEVEL_UP',GARDEN_UNLOCK:'GARDEN_UNLOCK',CULTURAL_ITEM_DISCOVERED:'CULTURAL_ITEM_DISCOVERED',CULTURAL_ITEM_ACQUIRED:'CULTURAL_ITEM_ACQUIRED',ANSWER_WRONG:'ANSWER_INCORRECT',LESSON_COMPLETE:'LESSON_COMPLETED',SESSION_START:'SESSION_STARTED',RETURNING_USER:'USER_RETURNED',NEW_MILESTONE:'MILESTONE_REACHED'};
 export const COMPANION_REACTIONS={
  idle:{label:'Idle',emoji:'🌸',tone:'idle',message:'A quiet moment is still part of the journey.'},
  happy:{label:'Happy',emoji:'😊',tone:'happy',message:'Nice one! That answer is settling in.'},
@@ -11,9 +11,10 @@ export const COMPANION_REACTIONS={
  sleepy:{label:'Sleepy',emoji:'🌙',tone:'sleepy',message:'A gentle review is plenty for tonight.'},
  welcome:{label:'Welcome back',emoji:'🌷',tone:'welcome',message:'Welcome back. Ready for one more little step?'}
 };
-const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',SESSION_STARTED:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging',CULTURAL_ITEM_DISCOVERED:'surprised',CULTURAL_ITEM_ACQUIRED:'surprised'};
+const reactionFor={ANSWER_CORRECT:'happy',ANSWER_WRONG:'encouraging',LESSON_COMPLETE:'celebrating',SESSION_START:'welcome',SESSION_STARTED:'welcome',FIRST_VISIT:'welcome',RETURNING_USER:'welcome',NEW_MILESTONE:'surprised',LESSON_STARTED:'thinking',QUEST_STARTED:'thinking',ANSWER_STREAK:'celebrating',LESSON_COMPLETED:'celebrating',QUEST_COMPLETED:'celebrating',SESSION_COMPLETED:'celebrating',USER_RETURNED:'welcome',MILESTONE_REACHED:'surprised',ANSWER_INCORRECT:'encouraging',CULTURAL_ITEM_DISCOVERED:'surprised',CULTURAL_ITEM_ACQUIRED:'surprised'};
 export const COMPANION_DIALOGUE={
   SESSION_STARTED:{welcome:['Ready when you are. Let’s learn together.','A small step is enough for today.']},
+  FIRST_VISIT:{welcome:['Welcome to Nihongo Quest. We can take the first step together.']},
   USER_RETURNED:{welcome:['Welcome back! Want something easy to warm up?','Good to see you again. We can ease in gently.']},
   ANSWER_CORRECT:{happy:['Nice one! That answer is settling in.','よくできました！ That one is blooming.']},
   ANSWER_INCORRECT:{encouraging:['Keep going. One small step is enough.','No worries — let’s look at the pattern together.']},
@@ -27,18 +28,17 @@ export const COMPANION_DIALOGUE={
   ,CULTURAL_ITEM_ACQUIRED:{surprised:['Your collection has a new piece of Japanese life.']}
 };
 let listeners=[];
-const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,SESSION_STARTED:3,USER_RETURNED:3,LESSON_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4,GARDEN_GROWTH:3,GARDEN_LEVEL_UP:4,GARDEN_UNLOCK:4};
+const priority={ANSWER_INCORRECT:1,ANSWER_CORRECT:1,ANSWER_STREAK:2,LESSON_STARTED:2,QUEST_STARTED:2,SESSION_STARTED:3,FIRST_VISIT:4,USER_RETURNED:3,LESSON_COMPLETED:4,QUEST_COMPLETED:4,SESSION_COMPLETED:4,MILESTONE_REACHED:4,GARDEN_GROWTH:3,GARDEN_LEVEL_UP:4,GARDEN_UNLOCK:4,CULTURAL_ITEM_DISCOVERED:3,CULTURAL_ITEM_ACQUIRED:3};
 export function companionState(){return getState().companionPresence}
 export function subscribeCompanion(fn){listeners.push(fn);return()=>{listeners=listeners.filter(x=>x!==fn)}}
-function pick(lines){return lines[Math.floor(Math.random()*lines.length)]}
+export function selectCompanionDialogue(event,presence={}){const key=reactionFor[event]||'idle',lines=COMPANION_DIALOGUE[event]?.[key]||[];if(!lines.length)return COMPANION_REACTIONS[key]?.message||COMPANION_REACTIONS.idle.message;const seed=(presence.seenEvents||0)+String(event).split('').reduce((sum,char)=>sum+char.charCodeAt(0),0);return lines[seed%lines.length]}
 export function emitCompanion(event,payload={}){const key=reactionFor[event]||'idle',r=COMPANION_REACTIONS[key],now=Date.now(),presence=getState().companionPresence||{};
   const important=['LESSON_COMPLETED','MILESTONE_REACHED','USER_RETURNED','SESSION_COMPLETED','SESSION_STARTED'].includes(event);
   const cooldown=payload.focus?4200:1800;
-  if(!important&&(priority[presence.event]||0)>=4&&now-(presence.lastEventAt||0)<cooldown)return r;
+  if(!payload.force&&!important&&(priority[presence.event]||0)>=4&&now-(presence.lastEventAt||0)<cooldown)return r;
   const streakUpgrade=event==='ANSWER_STREAK'&&presence.event==='ANSWER_CORRECT';
-  if(!important&&!streakUpgrade&&now-(presence.lastEventAt||0)<cooldown)return r;
-  const lines=COMPANION_DIALOGUE[event]?.[key]||[];
-  update(s=>{s.companionPresence={...s.companionPresence,reaction:key,event,message:payload.message||pick(lines)||r.message,lastEventAt:now,seenEvents:(s.companionPresence?.seenEvents||0)+1,lastSeenDate:new Date().toISOString().slice(0,10)}});
+  if(!payload.force&&!important&&!streakUpgrade&&now-(presence.lastEventAt||0)<cooldown)return r;
+  update(s=>{s.companionPresence={...s.companionPresence,reaction:key,event,message:payload.message||selectCompanionDialogue(event,s.companionPresence)||r.message,lastEventAt:now,seenEvents:(s.companionPresence?.seenEvents||0)+1,lastSeenDate:new Date().toISOString().slice(0,10)}});
   listeners.forEach(fn=>fn({event,reaction:key,...payload}));return r}
-export function initializeCompanion(){const s=getState(),lastDate=s.companionPresence?.lastSeenDate,last=lastDate?new Date(lastDate+'T00:00:00').getTime():0,days=last?Math.floor((Date.now()-last)/86400000):0;emitCompanion(days>=1?COMPANION_EVENTS.USER_RETURNED:COMPANION_EVENTS.SESSION_STARTED,{message:days>=3?'Welcome back! Want something easy to warm up?':days>=1?'Good to see you again. We can ease in gently.':undefined})}
+export function initializeCompanion(){const s=getState(),lastDate=s.companionPresence?.lastSeenDate,last=lastDate?new Date(lastDate+'T00:00:00').getTime():0,days=last?Math.floor((Date.now()-last)/86400000):0;const event=!lastDate?COMPANION_EVENTS.FIRST_VISIT:days>=1?COMPANION_EVENTS.USER_RETURNED:COMPANION_EVENTS.SESSION_STARTED;emitCompanion(event,{message:days>=3?'Welcome back! Want something easy to warm up?':days>=1?'Good to see you again. We can ease in gently.':undefined})}
 export const reactionKeys=Object.keys(COMPANION_REACTIONS);

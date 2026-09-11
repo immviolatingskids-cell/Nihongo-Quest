@@ -37,11 +37,23 @@ test('quest, mistake, discovery and milestone events select contextual reactions
   assert.ok(getState().companionPresence.seenEvents>=4);
 });
 
+test('contextual reactions persist their canonical event for accessible surfaces',()=>{
+  emitCompanion(COMPANION_EVENTS.GARDEN_GROWTH,{force:true,message:'The Garden noticed your practice.'});
+  const presence=getState().companionPresence;
+  assert.equal(presence.event,COMPANION_EVENTS.GARDEN_GROWTH);
+  assert.equal(presence.message,'The Garden noticed your practice.');
+  const exported=JSON.parse(JSON.stringify(getState()));
+  importSave(JSON.stringify(exported));
+  assert.equal(getState().companionPresence.event,COMPANION_EVENTS.GARDEN_GROWTH);
+});
+
 test('Sakura presence is mounted across app surfaces with accessible responsive fallback',()=>{
   const app=fs.readFileSync(path.resolve('src/app.js'),'utf8');
   const styles=fs.readFileSync(path.resolve('src/styles.css'),'utf8');
   assert.match(app,/sakuraPresence\('shell'\)/);
   assert.match(app,/sakura-companion\.webp/);
+  assert.match(app,/data-companion-event/);
+  assert.match(app,/aria-live="polite"/);
   assert.match(styles,/\.sakura-presence/);
   assert.match(styles,/prefers-reduced-motion:reduce/);
 });

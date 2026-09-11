@@ -1,0 +1,4 @@
+# Local browser audit profiles are disposable and may be locked while a browser is open.
+.chrome-audit-profile/
+.chrome-audit-profile2/
+.chrome-audit-profile3/

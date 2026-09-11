@@ -61,3 +61,4 @@ body{background:radial-gradient(circle at 75% 0,#182342 0,transparent 34%),#090f
 @media(prefers-reduced-motion:reduce){.home-welcome *,.journey-node-body{transition:none!important}}
 :root{--sakura:#f3a6bd;--ink:#f8f2f5;--muted:#c9b8c2;--base-size:16px}
 .skip-link{position:fixed;left:12px;top:8px;z-index:1000;padding:10px 14px;border-radius:10px;background:#fff;color:#20152a;transform:translateY(-180%);transition:transform .2s ease}.skip-link:focus{transform:translateY(0)}
+.kohaku-card{display:flex;gap:24px;align-items:center}.kohaku-card img{width:180px;height:160px;object-fit:contain}.kohaku-card h2{margin-top:6px}@media(max-width:560px){.kohaku-card{align-items:flex-start;flex-direction:column}.kohaku-card img{width:100%;height:190px}}

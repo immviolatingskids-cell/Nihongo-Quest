@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force dist,dist/src,dist/assets,dist/assets/culture,dist/assets/shop,dist/assets/garden | Out-Null; Copy-Item index.html dist/index.html -Force; Copy-Item src/*.js,src/*.css dist/src/ -Force; Copy-Item assets/*.webp dist/assets/ -Force; Copy-Item assets/culture/*.webp dist/assets/culture/ -Force; Copy-Item assets/shop/*.webp dist/assets/shop/ -Force; Copy-Item assets/garden/*.png,assets/garden/*.webp dist/assets/garden/ -Force\"",
+    "build": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force dist,dist/src,dist/assets,dist/assets/culture,dist/assets/shop,dist/assets/garden,dist/assets/characters,dist/assets/characters/sakura,dist/assets/characters/kohaku | Out-Null; Copy-Item index.html dist/index.html -Force; Copy-Item src/*.js,src/*.css dist/src/ -Force; Copy-Item assets/*.webp dist/assets/ -Force; Copy-Item assets/culture/*.webp dist/assets/culture/ -Force; Copy-Item assets/shop/*.webp dist/assets/shop/ -Force; Copy-Item assets/garden/*.png,assets/garden/*.webp dist/assets/garden/ -Force; Copy-Item assets/characters/sakura/*.webp dist/assets/characters/sakura/ -Force; Copy-Item assets/characters/kohaku/*.webp dist/assets/characters/kohaku/ -Force\"",
     "test": "node --test tests/*.test.js",
     "audio:report": "node scripts/audio-manifest.js",
     "culture:report": "node scripts/culture-report.js"

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {COMPANION_EVENTS,COMPANION_REACTIONS,emitCompanion,initializeCompanion,selectCompanionDialogue} from '../src/companion.js';
 import {getState,importSave,resetSave} from '../src/state.js';
+const app=fs.readFileSync(new URL('../src/app.js',import.meta.url),'utf8');
 
 test.beforeEach(()=>resetSave());
 
@@ -57,3 +58,5 @@ test('Sakura presence is mounted across app surfaces with accessible responsive 
   assert.match(styles,/\.sakura-presence/);
   assert.match(styles,/prefers-reduced-motion:reduce/);
 });
+
+test('revamped companion surface includes Kohaku and character runtime assets',()=>{assert.match(app,/Sakura & Kohaku/);assert.match(app,/characters\/kohaku\/kohaku-neutral\.webp/);assert.match(app,/characters\/sakura\/sakura-\$\{active\.tone/)});

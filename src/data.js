@@ -6,7 +6,7 @@ export const areas = [
   { id:'station', name:'Skyline Station', icon:'🚆', color:'#3286d5', description:'Find your way around town.', unlock:280,
     groups:[{id:'travel',name:'Travel',icon:'🎫',words:['eki','densha','kippu','doko']},{id:'directions',name:'Directions',icon:'🧭',words:['migi','hidari','mae','ushiro']}] },
   { id:'school', name:'Moonlight School', icon:'🌙', color:'#7656c9', description:'Talk about study and everyday routines.', unlock:480,
-    groups:[{id:'schoollife',name:'School',icon:'📚',words:['gakko','hon','benkyo','nihongo']},{id:'everyday',name:'Everyday',icon:'☀️',words:['asa','yoru','taberu','iku']}] }
+    groups:[{id:'schoollife',name:'School',icon:'📚',words:['gakko','hon','benkyo','nihongo']},{id:'everyday',name:'Everyday',icon:'☀️',words:['asa','yoru','taberu','iku','mainichi','okiru','nemuru','yomu']}] }
 ];
 
 const v=(id,kana,kanji,romaji,meaning,category,difficulty,area,example,exampleEn)=>({id,kana,kanji,romaji,meaning,category,difficulty,area,example,exampleEn});
@@ -42,7 +42,11 @@ export const vocabulary = [
   v('asa','あさ','朝','asa','morning','everyday',1,'school','あさごはんをたべます。','I eat breakfast.'),
   v('yoru','よる','夜','yoru','night','everyday',1,'school','よるにべんきょうします。','I study at night.'),
   v('taberu','たべる','食べる','taberu','to eat','everyday',2,'school','まいにちごはんをたべます。','I eat rice every day.'),
-  v('iku','いく','行く','iku','to go','everyday',2,'school','あした、えきにいきます。','Tomorrow, I go to the station.')
+  v('iku','いく','行く','iku','to go','everyday',2,'school','あした、えきにいきます。','Tomorrow, I go to the station.'),
+  v('mainichi','まいにち','毎日','mainichi','every day','everyday',2,'school','まいにち、にほんごをべんきょうします。','I study Japanese every day.'),
+  v('okiru','おきる','起きる','okiru','to wake up','everyday',2,'school','あさ、ろくじにおきます。','I wake up at six in the morning.'),
+  v('nemuru','ねむる','眠る','nemuru','to sleep','everyday',2,'school','よる、じゅうじにねむります。','I sleep at ten at night.'),
+  v('yomu','よむ','読む','yomu','to read','everyday',2,'school','まいにち、ほんをよみます。','I read a book every day.')
 ];
 
 export const kanaFamilies = [
@@ -92,7 +96,9 @@ export const curriculum = [
  {id:'path.story.restaurant',type:'story',title:'Table for one',subtitle:'Order at Mika’s restaurant',area:'market',requires:['path.grammar.objects'],content:['restaurant'],outcome:'Order a meal'},
  {id:'path.words.travel',type:'vocabulary',title:'Catch the train',subtitle:'Station vocabulary',area:'station',requires:['path.story.restaurant'],content:['eki','densha','kippu','doko'],outcome:'Ask about station travel'},
  {id:'path.grammar.destination',type:'grammar',title:'Where and when',subtitle:'に + ます',area:'station',requires:['path.words.travel'],content:['ni','masu'],outcome:'Describe a polite action and destination'},
- {id:'path.story.station',type:'story',title:'The right platform',subtitle:'Navigate the station',area:'station',requires:['path.grammar.destination'],content:['station'],outcome:'Complete a travel exchange'}
+ {id:'path.story.station',type:'story',title:'The right platform',subtitle:'Navigate the station',area:'station',requires:['path.grammar.destination'],content:['station'],outcome:'Complete a travel exchange'},
+ {id:'path.words.routine',type:'vocabulary',title:'A day in Japanese',subtitle:'Everyday routines',area:'school',requires:['path.story.station'],content:['mainichi','okiru','nemuru','yomu'],outcome:'Describe a simple daily rhythm'},
+ {id:'path.story.routine',type:'story',title:'A gentle routine',subtitle:'Talk about your day',area:'school',requires:['path.words.routine'],content:['routine'],outcome:'Complete an everyday exchange'}
 ];
 
 export const contentManifest={schemaVersion:1,collections:{vocabulary:'vocabulary',grammar:'grammar',kana:'kanaFamilies',scenarios:'scenarios',curriculum:'curriculum'}};

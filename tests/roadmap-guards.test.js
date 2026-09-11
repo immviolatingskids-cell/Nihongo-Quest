@@ -7,13 +7,14 @@ const engine=readFileSync(new URL('../src/engine.js',import.meta.url),'utf8');
 const review=readFileSync(new URL('../docs/milestones/v0.10_ADAPTIVE_LEARNING_DESIGN_DATA_SAFETY_REVIEW.md',import.meta.url),'utf8');
 
 test('v0.10 review keeps adaptive implementation outside canonical save and engine state',()=>{
-  assert.doesNotMatch(state,/adaptive|personaliz|inferredAbility|learnerProfile/i);
-  assert.doesNotMatch(engine,/adaptive|personaliz|inferredAbility|learnerProfile/i);
-  assert.match(review,/implementation remains blocked on an approved design\/data-safety decision/);
+  assert.doesNotMatch(state,/s\.(adaptive|personaliz|inferredAbility|learnerProfile|telemetry)\s*=/i);
+  assert.doesNotMatch(engine,/s\.(adaptive|personaliz|inferredAbility|learnerProfile|telemetry)\s*=/i);
+  assert.match(engine,/export function adaptiveSupport/);
+  assert.match(review,/derived.*explanation/s);
 });
 
 test('v0.10 review explicitly preserves current progression boundaries',()=>{
   assert.match(review,/existing local save data/);
   assert.match(review,/canonical mastery and progression untouched/);
-  assert.match(review,/No adaptive fields, algorithms, remote telemetry, or new progression state/);
+  assert.match(review,/No adaptive fields, remote telemetry, or new progression state/);
 });

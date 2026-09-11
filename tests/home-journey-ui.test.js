@@ -10,6 +10,8 @@ test('Home derives its single primary action from the canonical Journey recommen
   assert.match(home,/r=recommendNext\(\)/);
   assert.match(home,/data-journey-resume/);
   assert.match(home,/data-recommend/);
+  assert.match(home,/adaptiveSupport\(r\)/);
+  assert.match(home,/adaptive-explanation/);
   assert.doesNotMatch(home,/data-start="journey"/);
 });
 

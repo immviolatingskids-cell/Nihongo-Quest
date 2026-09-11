@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession,gardenProgress,gardenGrowthScore,syncGardenProgress,recommendNext,journeyMap} from '../src/engine.js';
+import {createQuestion,evaluateAnswer,evaluateConversationAnswer,normalizeAnswer,recordAnswerResult,recordWord,nextSkill,journeyItems,mistakeItems,buildSession,buildFocusSession,focusResumeIndex,describeSession,completeGrammar,completeConversation,recordFocusSession,gardenProgress,gardenGrowthScore,syncGardenProgress,recommendNext,adaptiveSupport,journeyMap} from '../src/engine.js';
 import {getState,resetSave,importSave} from '../src/state.js';
 import {subscribeCompanion} from '../src/companion.js';
 
@@ -194,4 +194,13 @@ test('Journey recommendation and node statuses give deterministic direction',()=
   const resumed=recommendNext();
   assert.equal(resumed.action,'resume');
   assert.equal(resumed.reason,'You stopped here last time.');
+});
+
+test('adaptive support explains canonical signals without creating progression state',()=>{
+  const recommendation=recommendNext();
+  const support=adaptiveSupport(recommendation);
+  assert.equal(support.action,recommendation.action);
+  assert.ok(Array.isArray(support.signals));
+  assert.match(support.explanation,/Based on/);
+  assert.equal(Object.prototype.hasOwnProperty.call(getState(),'adaptive'),false);
 });

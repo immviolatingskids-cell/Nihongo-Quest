@@ -1,9 +1,8 @@
 import {curriculum, vocabulary, kanaFamilies} from './data.js';
+import {dueWordsForState} from './engine.js';
 
 // A small, explainable policy. Scores are deliberately visible in the reasons below.
 const vowels = ['あ','い','う','え','お'];
-const clamp = (n,min=0,max=100) => Math.max(min, Math.min(max, Number(n)||0));
-const reviewScore = r => clamp(r?.skills?.recognition ?? ((r?.correct||0)*14-(r?.wrong||0)*9));
 
 export function directLearning(state={}, seed=0) {
   const s = state || {}, reviews=s.reviews||{}, kana=s.kana||{}, grammar=s.grammar||{}, answers=Array.isArray(s.answers)?s.answers:[], studyDays=Array.isArray(s.studyDays)?s.studyDays:[], sessions=Array.isArray(s.focus?.sessions)?s.focus.sessions:[];
@@ -22,7 +21,7 @@ export function directLearning(state={}, seed=0) {
   else {focus='Begin with the five vowels'; activity='kana'; reason='There is not enough saved performance data yet, so the safest start is the vowel foundation.'; priority='low'; minutes=2;}
   const requested=Number(s.focus?.lastDuration)||minutes;
   const sessionLength=[2,5,10].includes(requested)?requested:([2,5,10].includes(minutes)?minutes:5);
-  const targetIds=activity==='kana' ? (vowelWeak.length?vowelWeak:weakKana.map(([char])=>char)) : activity==='mistakes' ? recentWords : activity==='review' ? Object.keys(reviews).sort() : next?.id?[next.id]:[];
+  const targetIds=activity==='kana' ? (vowelWeak.length?vowelWeak:weakKana.map(([char])=>char)) : activity==='mistakes' ? recentWords : activity==='review' ? dueWordsForState(s).map(word=>word.id) : next?.id?[next.id]:[];
   return {focus,activity,reason,minutes:sessionLength,estimatedSession:`${sessionLength} minutes`,priority,fallback:'Begin with the five vowels',seed:Number(seed)||0,targetIds,targetType:activity==='kana'?'kana':activity==='mistakes'||activity==='review'?'vocabulary':activity};
 }
 
@@ -31,7 +30,7 @@ export function buildDirectedItems(state, recommendation=directLearning(state), 
   const r=recommendation, ids=r.targetIds||[];
   if(r.activity==='kana'){const chars=ids.length?ids:['あ','い','う','え','お'];return chars.map(kanaItem).filter(Boolean);}
   if(r.activity==='mistakes'){return ids.map(id=>vocabulary.find(word=>word.id===id)).filter(Boolean).map(word=>({type:'word',word,source:'recent mistake',stage:'recall'}));}
-  if(r.activity==='review'){return ids.map(id=>vocabulary.find(word=>word.id===id)).filter(Boolean).map(word=>({type:'word',word,source:'due review',stage:'recall'}));}
+  if(r.activity==='review'){return ids.map(id=>vocabulary.find(word=>word.id===id)).filter(Boolean).filter(word=>dueWordsForState(state).some(due=>due.id===word.id)).map(word=>({type:'word',word,source:'due review',stage:'recall'}));}
   return [];
 }
 

@@ -2,6 +2,8 @@
 
 A modular, browser-based Japanese learning game. Open it through a local web server so ES modules load correctly.
 
+v1.0 has shipped. The current `main` branch is the post-v1 adaptive-learning baseline; see [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md) before planning the next milestone.
+
 The app keeps progress on the current device in `localStorage`. Use **Settings & backup** to export or import a JSON save.
 
 ## Sakura companion
